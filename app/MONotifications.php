@@ -21,11 +21,4 @@ class MONotifications extends Model
         'product_id', 'price_point_id', 'mcc', 'mnc', 'text', 'msisdn', 'tags', 'large_account', 'transaction_uuid', 'external_tx_id'
     ];
 
-//    protected $maps = [
-//        'productId' => 'product_id',
-//        'pricepointId' => 'price_point_id',
-//        'largeAccount' => 'large_Account',
-//        'transactionUUID' => 'transaction_uuid',
-//        'externalTxId' => 'external_tx_id',
-//    ];
 }

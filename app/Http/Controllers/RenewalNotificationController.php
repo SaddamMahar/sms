@@ -22,8 +22,10 @@ class RenewalNotificationController extends Controller
     public function createRenewalNotification(Request $request, $partnerRole)
     {
         $params = $request->all();
+
         $exTxId = $request->header('external-tx-id');
         $params['externalTxId'] = $exTxId;
+
         $validator = Validator::make($params, $this->RenewalNotificationRules());
         if ($validator->passes()) {
 
@@ -37,7 +39,11 @@ class RenewalNotificationController extends Controller
             $mo->text = $params['text'];
             $mo->entry_channel = $params['entryChannel'];
             $mo->msisdn = $params['msisdn'];
-            $mo->tags = $params['tags'];
+            if (isset($params['tags'])) {
+                $mo->tags = $params['tags'];
+            } else {
+                $mo->tags = [];
+            }
             $mo->large_account = $params['largeAccount'];
             $mo->transaction_uuid = $params['transactionUUID'];
             $mo->external_tx_id = $exTxId;
@@ -47,6 +53,11 @@ class RenewalNotificationController extends Controller
                 return response()->custom($params, $e->getMessage(), true, $exTxId, '500');
             }
             $dto = new RenewalNotificationDTO($mo);
+
+            if (!isset($exTxId)) {
+                $exTxId = '';
+            }
+
             return response()->custom($dto, 'Saved', false, $exTxId, '201');
 
         } else {
@@ -67,7 +78,6 @@ class RenewalNotificationController extends Controller
             'msisdn' => 'required',
             'largeAccount' => 'required',
             'transactionUUID' => 'required',
-            'tags' => 'required',
         ];
     }
 

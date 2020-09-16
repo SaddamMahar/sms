@@ -13,9 +13,9 @@ namespace App\Http\Controllers;
 use App\Http\OptOutNotificationDTO;
 use App\OptOutNotifications;
 use App\Subscriber;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Validator;
-use Carbon\Carbon;
 
 class OptOutNotificationController extends Controller
 {
@@ -24,8 +24,10 @@ class OptOutNotificationController extends Controller
     public function createOptOutNotification(Request $request, $partnerRole)
     {
         $params = $request->all();
+
         $exTxId = $request->header('external-tx-id');
         $params['externalTxId'] = $exTxId;
+
         $validator = Validator::make($params, $this->OptOutRules());
         if ($validator->passes()) {
 
@@ -39,7 +41,11 @@ class OptOutNotificationController extends Controller
             $mo->msisdn = $params['msisdn'];
             $mo->entry_channel = $params['entryChannel'];
             $mo->msisdn = $params['msisdn'];
-            $mo->tags = $params['tags'];
+            if (isset($params['tags'])) {
+                $mo->tags = $params['tags'];
+            } else {
+                $mo->tags = [];
+            }
             $mo->large_account = $params['largeAccount'];
             $mo->transaction_uuid = $params['transactionUUID'];
             $mo->external_tx_id = $exTxId;
@@ -54,6 +60,10 @@ class OptOutNotificationController extends Controller
                 $subscriber->status = 0;
 
                 $subscriber->save();
+                
+                if (!isset($exTxId)) {
+                    $exTxId = '';
+                }
 
             } catch (\Exception $e) {
                 return response()->custom($params, $e->getMessage(), true, $exTxId, '500');
@@ -78,7 +88,6 @@ class OptOutNotificationController extends Controller
             'msisdn' => 'required',
             'largeAccount' => 'required',
             'transactionUUID' => 'required',
-            'tags' => 'required',
         ];
     }
 

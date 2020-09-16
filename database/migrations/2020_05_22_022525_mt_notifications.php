@@ -16,7 +16,7 @@ class MtNotifications extends Migration
         Schema::create('mt_notifications', function (Blueprint $table) {
             $table->increments('id');
             $table->string('partner_role_id', 255);
-            $table->string('external_tx_id', 255)->unique();
+            $table->string('external_tx_id', 255)->unique()->nullable();
             $table->integer('product_id');
             $table->bigInteger('price_point_id');
             $table->string('mcc', 50);
@@ -25,7 +25,7 @@ class MtNotifications extends Migration
             $table->string('user_identifier', 50);
             $table->string('large_account', 50);
             $table->string('transaction_uuid', 50)->unique();
-            $table->json('tags');
+            $table->json('tags')->nullable();
 
 
             $table->timestamp('created_at')->default(\DB::raw('CURRENT_TIMESTAMP'));

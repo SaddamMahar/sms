@@ -17,30 +17,48 @@ class SubscriberDTO implements \JsonSerializable
     {
         if (isset($arr['id'])) {
             $this->id = $arr['id'];
+        } else {
+            $this->id = '';
         }
         if (isset($arr['msisdn'])) {
             $this->msisdn = $arr['msisdn'];
+        } else {
+            $this->msisdn = '';
         }
         if (isset($arr['product_id'])) {
             $this->productId = $arr['product_id'];
+        } else {
+            $this->productId = '';
         }
         if (isset($arr['price_point_id'])) {
             $this->pricePointId = $arr['price_point_id'];
+        } else {
+            $this->pricePointId = '';
         }
         if (isset($arr['mcc'])) {
             $this->mcc = $arr['mcc'];
+        } else {
+            $this->mcc = '';
         }
         if (isset($arr['text'])) {
             $this->text = $arr['text'];
+        } else {
+            $this->text = '';
         }
         if (isset($arr['subscribe_date'])) {
             $this->subscribeDate = $arr['subscribe_date'];
+        } else {
+            $this->subscribeDate = '';
         }
         if (isset($arr['unsubscribe_date'])) {
             $this->unsubscribeDate = $arr['unsubscribe_date'];
+        } else {
+            $this->unsubscribeDate = '';
         }
         if (isset($arr['status'])) {
             $this->status = $arr['status'];
+        } else {
+            $this->status = '';
         }
     }
 
@@ -49,7 +67,10 @@ class SubscriberDTO implements \JsonSerializable
      */
     public function getId()
     {
-        return $this->id;
+        if (isset($this->id)) {
+            return $this->id;
+        }
+        return '';
     }
 
     /**
@@ -65,7 +86,10 @@ class SubscriberDTO implements \JsonSerializable
      */
     public function getMsisdn()
     {
-        return $this->msisdn;
+        if (isset($this->msisdn)) {
+            return $this->msisdn;
+        }
+        return '';
     }
 
     /**
@@ -81,7 +105,10 @@ class SubscriberDTO implements \JsonSerializable
      */
     public function getProductId()
     {
-        return $this->productId;
+        if (isset($this->productId)) {
+            return $this->productId;
+        }
+        return '';
     }
 
     /**
@@ -97,7 +124,10 @@ class SubscriberDTO implements \JsonSerializable
      */
     public function getPricePointId()
     {
-        return $this->pricePointId;
+        if (isset($this->pricePointId)) {
+            return $this->pricePointId;
+        }
+        return '';
     }
 
     /**
@@ -113,7 +143,10 @@ class SubscriberDTO implements \JsonSerializable
      */
     public function getMcc()
     {
-        return $this->mcc;
+        if (isset($this->mcc)) {
+            return $this->mcc;
+        }
+        return '';
     }
 
     /**
@@ -129,7 +162,10 @@ class SubscriberDTO implements \JsonSerializable
      */
     public function getText()
     {
-        return $this->text;
+        if (isset($this->text)) {
+            return $this->text;
+        }
+        return '';
     }
 
     /**
@@ -145,7 +181,10 @@ class SubscriberDTO implements \JsonSerializable
      */
     public function getSubscribeDate()
     {
-        return $this->subscribeDate;
+        if (isset($this->subscribeDate)) {
+            return $this->subscribeDate;
+        }
+        return '';
     }
 
     /**
@@ -161,7 +200,10 @@ class SubscriberDTO implements \JsonSerializable
      */
     public function getUnsubscribeDate()
     {
-        return $this->unsubscribeDate;
+        if (isset($this->unsubscribeDate)) {
+            return $this->unsubscribeDate;
+        }
+        return '';
     }
 
     /**
@@ -177,7 +219,10 @@ class SubscriberDTO implements \JsonSerializable
      */
     public function getStatus()
     {
-        return $this->status;
+        if (isset($this->status)) {
+            return $this->status;
+        }
+        return '';
     }
 
     /**

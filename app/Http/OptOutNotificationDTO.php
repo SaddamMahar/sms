@@ -11,46 +11,70 @@ namespace App\Http;
 
 class OptOutNotificationDTO implements \JsonSerializable
 {
-    private $id, $partnerRole, $productId, $externalTxId, $pricepointId, $mcc, $mnc, $msisdn, $entryChannel,$largeAccount, $transactionUUID;
+    private $id, $partnerRole, $productId, $externalTxId, $pricepointId, $mcc, $mnc, $msisdn, $entryChannel, $largeAccount, $transactionUUID;
     private $tags;
 
     public function __construct($arr)
     {
         if (isset($arr['id'])) {
             $this->id = $arr['id'];
+        } else {
+            $this->id = '';
         }
         if (isset($arr['partner_role_id'])) {
             $this->partnerRole = $arr['partner_role_id'];
+        } else {
+            $this->partnerRole = '';
         }
         if (isset($arr['product_id'])) {
             $this->productId = $arr['product_id'];
+        } else {
+            $this->productId = '';
         }
         if (isset($arr['price_point_id'])) {
             $this->pricepointId = $arr['price_point_id'];
+        } else {
+            $this->pricepointId = '';
         }
         if (isset($arr['mcc'])) {
             $this->mcc = $arr['mcc'];
+        } else {
+            $this->mcc = '';
         }
         if (isset($arr['mnc'])) {
             $this->mnc = $arr['mnc'];
+        } else {
+            $this->mnc = '';
         }
         if (isset($arr['msisdn'])) {
             $this->msisdn = $arr['msisdn'];
+        } else {
+            $this->msisdn = '';
         }
         if (isset($arr['entry_channel'])) {
             $this->entryChannel = $arr['entry_channel'];
+        } else {
+            $this->entryChannel = '';
         }
         if (isset($arr['transaction_uuid'])) {
             $this->transactionUUID = $arr['transaction_uuid'];
+        } else {
+            $this->transactionUUID = '';
         }
         if (isset($arr['large_account'])) {
             $this->largeAccount = $arr['large_account'];
+        } else {
+            $this->largeAccount = '';
         }
         if (isset($arr['external_tx_id'])) {
             $this->externalTxId = $arr['external_tx_id'];
+        } else {
+            $this->externalTxId = '';
         }
         if (isset($arr['tags'])) {
             $this->tags = $arr['tags'];
+        } else {
+            $this->tags = [];
         }
     }
 
@@ -59,7 +83,10 @@ class OptOutNotificationDTO implements \JsonSerializable
      */
     public function getId()
     {
-        return $this->id;
+        if (isset($this->id)) {
+            return $this->id;
+        }
+        return '';
     }
 
     /**
@@ -67,7 +94,10 @@ class OptOutNotificationDTO implements \JsonSerializable
      */
     public function getPartnerRole()
     {
-        return $this->partnerRole;
+        if (isset($this->partnerRole)) {
+            return $this->partnerRole;
+        }
+        return '';
     }
 
     /**
@@ -75,7 +105,10 @@ class OptOutNotificationDTO implements \JsonSerializable
      */
     public function getProductId()
     {
-        return $this->productId;
+        if (isset($this->productId)) {
+            return $this->productId;
+        }
+        return '';
     }
 
     /**
@@ -83,7 +116,10 @@ class OptOutNotificationDTO implements \JsonSerializable
      */
     public function getExternalTxId()
     {
-        return $this->externalTxId;
+        if (isset($this->externalTxId)) {
+            return $this->externalTxId;
+        }
+        return '';
     }
 
     /**
@@ -91,7 +127,10 @@ class OptOutNotificationDTO implements \JsonSerializable
      */
     public function getPricepointId()
     {
-        return $this->pricepointId;
+        if (isset($this->pricepointId)) {
+            return $this->pricepointId;
+        }
+        return '';
     }
 
     /**
@@ -99,7 +138,10 @@ class OptOutNotificationDTO implements \JsonSerializable
      */
     public function getMcc()
     {
-        return $this->mcc;
+        if (isset($this->mcc)) {
+            return $this->mcc;
+        }
+        return '';
     }
 
     /**
@@ -107,7 +149,10 @@ class OptOutNotificationDTO implements \JsonSerializable
      */
     public function getMnc()
     {
-        return $this->mnc;
+        if (isset($this->mnc)) {
+            return $this->mnc;
+        }
+        return '';
     }
 
     /**
@@ -115,7 +160,10 @@ class OptOutNotificationDTO implements \JsonSerializable
      */
     public function getMsisdn()
     {
-        return $this->msisdn;
+        if (isset($this->msisdn)) {
+            return $this->msisdn;
+        }
+        return '';
     }
 
     /**
@@ -123,7 +171,10 @@ class OptOutNotificationDTO implements \JsonSerializable
      */
     public function getEntryChannel()
     {
-        return $this->entryChannel;
+        if (isset($this->entryChannel)) {
+            return $this->entryChannel;
+        }
+        return '';
     }
 
     /**
@@ -131,7 +182,10 @@ class OptOutNotificationDTO implements \JsonSerializable
      */
     public function getLargeAccount()
     {
-        return $this->largeAccount;
+        if (isset($this->largeAccount)) {
+            return $this->largeAccount;
+        }
+        return '';
     }
 
     /**
@@ -139,7 +193,10 @@ class OptOutNotificationDTO implements \JsonSerializable
      */
     public function getTransactionUUID()
     {
-        return $this->transactionUUID;
+        if (isset($this->transactionUUID)) {
+            return $this->transactionUUID;
+        }
+        return '';
     }
 
     /**
@@ -147,11 +204,14 @@ class OptOutNotificationDTO implements \JsonSerializable
      */
     public function getTags()
     {
-        return $this->tags;
+        if (isset($this->tags)) {
+            return $this->tags;
+        }
+        return [];
     }
 
 
-   /**
+    /**
      * Specify data which should be serialized to JSON
      * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
      * @return mixed data which can be serialized by <b>json_encode</b>,

@@ -22,8 +22,10 @@ class MTNotificationController extends Controller
     public function createMTNotification(Request $request, $partnerRole)
     {
         $params = $request->all();
+
         $exTxId = $request->header('external-tx-id');
         $params['externalTxId'] = $exTxId;
+
         $validator = Validator::make($params, $this->MORules());
         if ($validator->passes()) {
 
@@ -38,10 +40,17 @@ class MTNotificationController extends Controller
             $mo->user_identifier = $params['userIdentifier'];
             $mo->large_account = $params['largeAccount'];
             $mo->mno_delivery_code = $params['mnoDeliveryCode'];
-            $mo->tags = $params['tags'];
+            if (isset($params['tags'])) {
+                $mo->tags = $params['tags'];
+            } else {
+                $mo->tags = [];
+            }
             $mo->external_tx_id = $exTxId;
             try {
                 $mo->save();
+                if (!isset($exTxId)) {
+                    $exTxId = '';
+                }
             } catch (\Exception $e) {
                 return response()->custom($params, $e->getMessage(), true, $exTxId, '500');
             }
@@ -65,7 +74,6 @@ class MTNotificationController extends Controller
             'userIdentifier' => 'required',
             'largeAccount' => 'required',
             'mnoDeliveryCode' => 'required',
-            'tags' => 'required',
         ];
     }
 
