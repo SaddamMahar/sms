@@ -13,6 +13,7 @@ namespace App\Http\Controllers;
 use App\Http\MTNotificationDTO;
 use App\MTNotifications;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Validator;
 
 class MTNotificationController extends Controller
@@ -24,7 +25,6 @@ class MTNotificationController extends Controller
         $params = $request->all();
 
         $exTxId = $request->header('external-tx-id');
-        $params['externalTxId'] = $exTxId;
 
         $validator = Validator::make($params, $this->MORules());
         if ($validator->passes()) {
@@ -32,25 +32,16 @@ class MTNotificationController extends Controller
             $mo = new MTNotifications();
 
             $mo->partner_role_id = $partnerRole;
-            $mo->product_id = $params['productId'];
-            $mo->price_point_id = $params['pricepointId'];
-            $mo->mcc = $params['mcc'];
-            $mo->mnc = $params['mnc'];
-            $mo->transaction_uuid = $params['transactionUUID'];
-            $mo->user_identifier = $params['userIdentifier'];
-            $mo->large_account = $params['largeAccount'];
-            $mo->mno_delivery_code = $params['mnoDeliveryCode'];
-            if (isset($params['tags'])) {
-                $mo->tags = $params['tags'];
-            } else {
-                $mo->tags = [];
-            }
             $mo->external_tx_id = $exTxId;
+            if (!isset($exTxId)) {
+                $mo->external_tx_id = (string)Str::uuid();
+                $exTxId = '';
+            }
+
+            $this->modelFromParams($mo, $params);
+
             try {
                 $mo->save();
-                if (!isset($exTxId)) {
-                    $exTxId = '';
-                }
             } catch (\Exception $e) {
                 return response()->custom($params, $e->getMessage(), true, $exTxId, '500');
             }
@@ -67,14 +58,92 @@ class MTNotificationController extends Controller
     {
         return [
             'productId' => 'required',
-            'pricepointId' => 'required',
             'mcc' => 'required',
             'mnc' => 'required',
-            'transactionUUID' => 'required',
             'userIdentifier' => 'required',
-            'largeAccount' => 'required',
-            'mnoDeliveryCode' => 'required',
         ];
+    }
+
+
+    private function modelFromParams($mo, $params)
+    {
+        if (isset($params['productId'])) {
+            $mo->product_id = $params['productId'];
+        } else {
+            $mo->product_id = '';
+        }
+
+        if (isset($params['pricepointId'])) {
+            $mo->price_point_id = $params['pricepointId'];
+        } else {
+            $mo->price_point_id = '';
+        }
+
+        if (isset($params['mcc'])) {
+            $mo->mcc = $params['mcc'];
+        } else {
+            $mo->mcc = '';
+        }
+
+        if (isset($params['mnc'])) {
+            $mo->mnc = $params['mnc'];
+        } else {
+            $mo->mnc = '';
+        }
+
+        if (isset($params['text'])) {
+            $mo->text = $params['text'];
+        } else {
+            $mo->text = '';
+        }
+
+        if (isset($params['msisdn'])) {
+            $mo->msisdn = $params['msisdn'];
+        } else {
+            $mo->msisdn = '';
+        }
+
+        if (isset($params['tags'])) {
+            $mo->tags = $params['tags'];
+        } else {
+            $mo->tags = [];
+        }
+
+        if (isset($params['largeAccount'])) {
+            $mo->large_account = $params['largeAccount'];
+        } else {
+            $mo->large_account = '';
+        }
+
+        if (isset($params['transactionUUID'])) {
+            $mo->transaction_uuid = $params['transactionUUID'];
+        } else {
+            $mo->transaction_uuid = '';
+        }
+
+        if (isset($params['entry_channel'])) {
+            $mo->entry_channel = $params['entry_channel'];
+        } else {
+            $mo->entry_channel = '';
+        }
+
+        if (isset($params['userIdentifier'])) {
+            $mo->user_identifier = $params['userIdentifier'];
+        } else {
+            $mo->user_identifier = '';
+        }
+
+        if (isset($params['userIdentifierType'])) {
+            $mo->user_identifier_type = $params['userIdentifierType'];
+        } else {
+            $mo->user_identifier_type = '';
+        }
+
+        if (isset($params['mnoDeliveryCode'])) {
+            $mo->mno_delivery_code = $params['mnoDeliveryCode'];
+        } else {
+            $mo->mno_delivery_code = '';
+        }
     }
 
 }

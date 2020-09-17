@@ -11,7 +11,8 @@ namespace App\Http;
 
 class MTNotificationDTO implements \JsonSerializable
 {
-    private $id, $partnerRole, $productId, $externalTxId, $pricepointId, $mcc, $mnc, $userIdentifier, $largeAccount, $transactionUUID, $mnoDeliveryCode;
+    private $id, $partnerRole, $externalTxId, $productId, $pricepointId, $mcc, $mnc, $text, $mnoDeliveryCode,
+        $userIdentifier, $userIdentifierType, $msisdn, $entryChannel, $largeAccount, $transactionUUID;
     private $tags;
 
     public function __construct($arr)
@@ -51,6 +52,11 @@ class MTNotificationDTO implements \JsonSerializable
         } else {
             $this->userIdentifier = '';
         }
+        if (isset($arr['user_identifier_type'])) {
+            $this->userIdentifierType = $arr['user_identifier_type'];
+        } else {
+            $this->userIdentifierType = '';
+        }
         if (isset($arr['transaction_uuid'])) {
             $this->transactionUUID = $arr['transaction_uuid'];
         } else {
@@ -70,6 +76,21 @@ class MTNotificationDTO implements \JsonSerializable
             $this->externalTxId = $arr['external_tx_id'];
         } else {
             $this->externalTxId = '';
+        }
+        if (isset($arr['text'])) {
+            $this->text = $arr['text'];
+        } else {
+            $this->text = '';
+        }
+        if (isset($arr['msisdn'])) {
+            $this->msisdn = $arr['msisdn'];
+        } else {
+            $this->msisdn = '';
+        }
+        if (isset($arr['entryChannel'])) {
+            $this->entryChannel = $arr['entryChannel'];
+        } else {
+            $this->entryChannel = '';
         }
         if (isset($arr['tags'])) {
             $this->tags = $arr['tags'];
@@ -167,6 +188,17 @@ class MTNotificationDTO implements \JsonSerializable
     }
 
     /**
+     * @return string
+     */
+    public function getUserIdentifierType(): string
+    {
+        if (isset($this->userIdentifierType)) {
+            return $this->userIdentifierType;
+        }
+        return '';
+    }
+
+    /**
      * @return mixed
      */
     public function getLargeAccount()
@@ -195,6 +227,39 @@ class MTNotificationDTO implements \JsonSerializable
     {
         if (isset($this->mnoDeliveryCode)) {
             return $this->mnoDeliveryCode;
+        }
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getText(): string
+    {
+        if (isset($this->text)) {
+            return $this->text;
+        }
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getMsisdn(): string
+    {
+        if (isset($this->msisdn)) {
+            return $this->msisdn;
+        }
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getEntryChannel(): string
+    {
+        if (isset($this->entryChannel)) {
+            return $this->entryChannel;
         }
         return '';
     }

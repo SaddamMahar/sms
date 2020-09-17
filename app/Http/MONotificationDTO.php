@@ -11,7 +11,8 @@ namespace App\Http;
 
 class MONotificationDTO implements \JsonSerializable
 {
-    private $id, $partnerRole, $productId, $pricepointId, $mcc, $mnc, $text, $msisdn, $largeAccount, $transactionUUID, $externalTxId;
+    private $id, $partnerRole, $productId, $pricepointId, $mcc, $mnc, $text, $msisdn, $largeAccount,
+        $transactionUUID, $externalTxId, $entryChannel, $userIdentifier, $userIdentifierType, $mnoDeliveryCode;
     private $tags;
 
     public function __construct($arr)
@@ -70,6 +71,26 @@ class MONotificationDTO implements \JsonSerializable
             $this->externalTxId = $arr['external_tx_id'];
         } else {
             $this->externalTxId = '';
+        }
+        if (isset($arr['entry_channel'])) {
+            $this->entryChannel = $arr['entry_channel'];
+        } else {
+            $this->entryChannel = '';
+        }
+        if (isset($arr['user_identifier'])) {
+            $this->userIdentifier = $arr['user_identifier'];
+        } else {
+            $this->userIdentifier = '';
+        }
+        if (isset($arr['user_identifier_type'])) {
+            $this->userIdentifierType = $arr['user_identifier_type'];
+        } else {
+            $this->userIdentifierType = '';
+        }
+        if (isset($arr['mno_delivery_code'])) {
+            $this->mnoDeliveryCode = $arr['mno_delivery_code'];
+        } else {
+            $this->mnoDeliveryCode = '';
         }
         if (isset($arr['tags'])) {
             $this->tags = $arr['tags'];
@@ -195,6 +216,51 @@ class MONotificationDTO implements \JsonSerializable
     {
         if (isset($this->externalTxId)) {
             return $this->externalTxId;
+        }
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getEntryChannel(): string
+    {
+        if (isset($this->entryChannel)) {
+            return $this->entryChannel;
+        }
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserIdentifier(): string
+    {
+        if (isset($this->userIdentifier)) {
+            return $this->userIdentifier;
+        }
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserIdentifierType(): string
+    {
+        if (isset($this->userIdentifierType)) {
+            return $this->userIdentifierType;
+        }
+        return '';
+
+    }
+
+    /**
+     * @return string
+     */
+    public function getMnoDeliveryCode(): string
+    {
+        if (isset($this->mnoDeliveryCode)) {
+            return $this->mnoDeliveryCode;
         }
         return '';
     }

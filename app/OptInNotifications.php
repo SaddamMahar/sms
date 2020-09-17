@@ -18,8 +18,8 @@ class OptInNotifications extends Model
         'tags' => 'array'
     ];
     protected $fillable = [
-        'product_id', 'partner_role_id', 'external_tx_id','price_point_id', 'mcc', 'mnc', 'text', 'entry_channel',
-        'msisdn', 'transaction_uuid', 'large_account', 'tags'
+        'partner_role_id', 'external_tx_id', 'product_id', 'price_point_id', 'mcc', 'mnc', 'text', 'entry_channel',
+        'msisdn', 'large_account', 'transaction_uuid', 'user_identifier', 'user_identifier_type', 'mno_delivery_code',
+        'tags'
     ];
-
 }

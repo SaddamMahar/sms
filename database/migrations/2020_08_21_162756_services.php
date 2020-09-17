@@ -15,16 +15,16 @@ class Services extends Migration
     {
         Schema::create('services', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('product_id', 60)->unique();
-            $table->string('service_name');
-            $table->string('service_name_eng');
+            $table->string('product_id', 60)->unique()->nullable();
+            $table->string('service_name')->nullable();
+            $table->string('service_name_eng')->nullable();
             $table->string('short_code')->nullable();
             $table->string('description')->nullable();
             $table->string('price_point_per_frequency')->nullable();
             $table->string('micro_charging1_frequency')->nullable();
             $table->string('micro_charging2_frequency')->nullable();
-            $table->string('sub_keyword');
-            $table->string('unsub_keyword');
+            $table->string('sub_keyword')->nullable();
+            $table->string('unsub_keyword')->nullable();
             $table->string('service_urls')->nullable();
             $table->string('is_it_free')->nullable();
 

@@ -11,7 +11,8 @@ namespace App\Http;
 
 class RenewalNotificationDTO implements \JsonSerializable
 {
-    private $id, $partnerRole, $productId, $externalTxId, $pricepointId, $mcc, $mnc, $msisdn, $entryChannel, $text, $largeAccount, $transactionUUID;
+    private $id, $partnerRole, $productId, $externalTxId, $pricepointId, $mcc, $mnc, $msisdn, $entryChannel, $text,
+        $largeAccount, $userIdentifier, $userIdentifierType, $mnoDeliveryCode, $transactionUUID;
     private $tags;
 
     public function __construct($arr)
@@ -75,6 +76,21 @@ class RenewalNotificationDTO implements \JsonSerializable
             $this->externalTxId = $arr['external_tx_id'];
         } else {
             $this->externalTxId = '';
+        }
+        if (isset($arr['user_identifier'])) {
+            $this->userIdentifier = $arr['user_identifier'];
+        } else {
+            $this->userIdentifier = '';
+        }
+        if (isset($arr['user_identifier_type'])) {
+            $this->userIdentifierType = $arr['user_identifier_type'];
+        } else {
+            $this->userIdentifierType = '';
+        }
+        if (isset($arr['mno_delivery_code'])) {
+            $this->mnoDeliveryCode = $arr['mno_delivery_code'];
+        } else {
+            $this->mnoDeliveryCode = '';
         }
         if (isset($arr['tags'])) {
             $this->tags = $arr['tags'];
@@ -200,6 +216,39 @@ class RenewalNotificationDTO implements \JsonSerializable
     {
         if (isset($this->largeAccount)) {
             return $this->largeAccount;
+        }
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserIdentifier(): string
+    {
+        if (isset($this->userIdentifier)) {
+            return $this->userIdentifier;
+        }
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserIdentifierType(): string
+    {
+        if (isset($this->userIdentifierType)) {
+            return $this->userIdentifierType;
+        }
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getMnoDeliveryCode(): string
+    {
+        if (isset($this->mnoDeliveryCode)) {
+            return $this->mnoDeliveryCode;
         }
         return '';
     }

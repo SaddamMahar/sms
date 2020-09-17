@@ -15,13 +15,13 @@ class Subscribers extends Migration
     {
         Schema::create('subscribers', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('msisdn', 60);
+            $table->string('msisdn', 60)->nullable();
             $table->string('shortcode', 60)->nullable();
-            $table->string('product_id', 60);
-            $table->string('price_point_id', 60);
-            $table->string('mcc', 60);
-            $table->string('text', 255);
-            $table->timestamp('subscribe_date');
+            $table->string('product_id', 60)->nullable();
+            $table->string('price_point_id', 60)->nullable();
+            $table->string('mcc', 60)->nullable();
+            $table->string('text', 255)->nullable();
+            $table->timestamp('subscribe_date')->nullable();
             $table->timestamp('unsubscribe_date')->nullable();
             $table->boolean('status')->default(0);
 

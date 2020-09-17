@@ -18,7 +18,9 @@ class MTNotifications extends Model
         'tags' => 'array'
     ];
     protected $fillable = [
-        'product_id', 'partner_role_id', 'external_tx_id', 'price_point_id', 'mcc', 'mnc', 'transaction_uuid', 'user_identifier', 'large_account', 'mno_delivery_code', 'tags'
+        'partner_role_id', 'external_tx_id', 'product_id', 'price_point_id', 'mcc', 'mnc', 'text', 'mno_delivery_code',
+        'user_identifier', 'user_identifier_type', 'msisdn', 'entry_channel', 'large_account', 'transaction_uuid',
+        'tags'
     ];
 
 }

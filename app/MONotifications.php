@@ -18,7 +18,8 @@ class MONotifications extends Model
             'tags' => 'array'
         ];
     protected $fillable = [
-        'product_id', 'price_point_id', 'mcc', 'mnc', 'text', 'msisdn', 'tags', 'large_account', 'transaction_uuid', 'external_tx_id'
+        'partner_role_id', 'product_id', 'price_point_id', 'mcc', 'mnc', 'text', 'msisdn', 'tags', 'large_account',
+        'transaction_uuid', 'external_tx_id', 'entry_channel', 'user_identifier', 'user_identifier_type',
+        'mno_delivery_code'
     ];
-
 }
