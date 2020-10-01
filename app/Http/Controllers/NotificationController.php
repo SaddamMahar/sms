@@ -36,7 +36,7 @@ class NotificationController extends Controller
             $mo->external_tx_id = $exTxId;
             if (!isset($exTxId)) {
                 $mo->external_tx_id = (string)Str::uuid();
-                $exTxId = '';
+                $exTxId = $mo->external_tx_id;
             }
 
             $this->modelFromParams($mo, $params);
@@ -44,16 +44,20 @@ class NotificationController extends Controller
             try {
                 $mo->save();
             } catch (\Exception $e) {
-                return response()->custom($params, $e->getMessage(), true, $exTxId, '500');
+                return response()->custom(new \stdClass(), $e->getMessage(), true, $exTxId, 'Failed', '500');
             }
-
-            $dto = new MONotificationDTO($mo);
-
-            return response()->custom($dto, 'Saved', false, $exTxId, '201');
-
+            return response()->custom(new \stdClass(), 'Saved', false, $exTxId, 'SUCCESS', '201');
         } else {
 
-            return response()->custom($params, $validator->errors()->all(), true, $exTxId, '500');
+            $errMessage = '';
+            foreach ($validator->errors()->all() as $err) {
+                if ($errMessage === '') {
+                    $errMessage = $err;
+                } else {
+                    $errMessage = $errMessage . ' ' . $err;
+                }
+            }
+            return response()->custom(new \stdClass(), $errMessage, true, $exTxId, 'Failed', '500');
         }
     }
 

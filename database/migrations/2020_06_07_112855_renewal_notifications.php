@@ -29,7 +29,7 @@ class RenewalNotifications extends Migration
             $table->string('user_identifier_type', 50)->nullable();
             $table->string('mno_delivery_code', 50)->nullable();
             $table->string('large_account', 50)->nullable();
-            $table->string('transaction_uuid', 50)->unique()->nullable();
+            $table->string('transaction_uuid', 50)->nullable();
             $table->json('tags')->nullable();
 
             $table->timestamp('created_at')->default(\DB::raw('CURRENT_TIMESTAMP'));

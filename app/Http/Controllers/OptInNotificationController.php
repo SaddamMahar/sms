@@ -10,7 +10,7 @@
 namespace App\Http\Controllers;
 
 
-use App\Http\OptInNotificationDTO;
+use App\Http\SendMTDTO;
 use App\OptInNotifications;
 use App\Subscriber;
 use Carbon\Carbon;
@@ -22,12 +22,11 @@ use Validator;
 
 class OptInNotificationController extends Controller
 {
-    private $channel, $url, $apikey, $auth = 'b7pUE1ECyqOmpvA3VgcHQv35EIjlqbo2hrva28Mcvhs=';
+    private $channel, $url, $apikey, $auth;
 
     public function getAuthorized(Request $request, $partnerRole)
     {
-        $this->sendMT($partnerRole);
-        return $this->auth;
+        return $this->encryptedKey();
     }
 
     public function createOptInNotification(Request $request, $partnerRole)
@@ -59,17 +58,29 @@ class OptInNotificationController extends Controller
 
                 $subscriber->save();
 
-                $this->sendTimweePostReq($mo);
+                $mtRes = $this->sendTimweePostReq($mo);
 
-                $dto = new OptInNotificationDTO($mo);
+                if ($mtRes->isInError()) {
 
-                return response()->custom($dto, 'Saved', false, $exTxId, '201');
+                    return response()->custom($mtRes->getResponseData(), 'Send MT failed', true, $exTxId,
+                        $mtRes->getCode(), '500');
+                }
+
+                return response()->custom($mtRes->getResponseData(), '', false, $exTxId, 'SUCCESS', '200');
 
             } catch (\Exception $e) {
-                return response()->custom($params, $e->getMessage(), true, $exTxId, '500');
+                return response()->custom(new \stdClass(), $e->getMessage(), true, $exTxId, 'Failed', '500');
             }
         } else {
-            return response()->custom($params, $validator->errors()->all(), true, $exTxId, '500');
+            $errMessage = '';
+            foreach ($validator->errors()->all() as $err) {
+                if ($errMessage === '') {
+                    $errMessage = $err;
+                } else {
+                    $errMessage = $errMessage . ' ' . $err;
+                }
+            }
+            return response()->custom(new \stdClass(), $errMessage, true, $exTxId, 'Failed', '500');
         }
     }
 
@@ -80,6 +91,7 @@ class OptInNotificationController extends Controller
         $this->channel = config('app.channel'); //'sms'
         $this->apikey = config('app.apikey');
         $this->url = 'api/external/v1/' . $this->channel . '/mt/' . $partnerRole;
+        $this->auth = $this->encryptedKey();
 
         $headers = ['apikey' => $this->apikey, 'authentication' => $this->auth];
 
@@ -117,23 +129,76 @@ class OptInNotificationController extends Controller
         $params['externalTxId'] = $exTxId;
 
         if (isset($params['mnoDeliveryCode'])) {
-            if ($params['mnoDeliveryCode'] == 'not DELIVERED' || $params['mnoDeliveryCode'] == 'NOT DELIVERED') {
+            if ($params['mnoDeliveryCode'] == 'DELIVERED') {
 
                 $this->channel = config('app.channel'); //'sms'
                 $this->apikey = config('app.apikey');
                 $this->url = 'api/external/v1/' . $this->channel . '/mt/';
+                $this->auth = $this->encryptedKey();
 
                 $headers = ['apikey' => $this->apikey, 'authentication' => $this->auth];
                 $urlSendMT = $this->url . $partnerRole;
                 $uuid = (string)Str::uuid();
                 $headers['external-tx-id'] = $uuid;
 
-                $params['text'] = 'ÑÕíÏß ÛíÑ ßÇÝ¡ ÇáÑÌÇÁ ÔÍä ÇáÎØ ááÇÓÊÝÇÏÉ ãä ÇáÎÏãÉ';
+                $params['text'] = 'مباراة الميلان ضد أتالانتا انتهت لصالح أصحاب الأرض الميلان بنتيجة 1 - 0 ';
 
-                $re = $this->post($urlSendMT, $params, $headers);
+                try {
+                    $re = $this->post($urlSendMT, $params, $headers);
+                    $respBody = json_decode($re->getBody());
 
-                $respBody = json_decode($re->getBody());
-                return response()->custom($respBody, 'OK', false, $exTxId, '200');
+                    if ($respBody->getStatusCode() > 300) {
+                        return response()->custom($respBody->responseData, 'Send MT failed', true, $exTxId,
+                            $respBody->code, $respBody->getStatusCode());
+                    }
+
+                    return response()->custom($respBody->responseData, 'Send MT SUCCESS', false, $exTxId,
+                        $respBody->code, $respBody->getStatusCode());
+                } catch (\Exception $ex) {
+
+                    return response()->custom(new \stdClass(), 'Send MT Failed', true, $exTxId,
+                        $ex->getMessage(), '500');
+
+                }
+
+            }
+            if ($params['mnoDeliveryCode'] == 'NO_BALANCE') {
+
+                $this->channel = config('app.channel'); //'sms'
+                $this->apikey = config('app.apikey');
+                $this->url = 'api/external/v1/' . $this->channel . '/mt/';
+                $this->auth = $this->encryptedKey();
+
+                $headers = ['apikey' => $this->apikey, 'authentication' => $this->auth];
+                $urlSendMT = $this->url . $partnerRole;
+                $uuid = (string)Str::uuid();
+                $headers['external-tx-id'] = $uuid;
+
+                $params['text'] = ' رصيدك غير كاف، الرجاء شحن الخط للاستفادة من الخدمة';
+
+                try {
+                    $re = $this->post($urlSendMT, $params, $headers);
+                    $respBody = json_decode($re->getBody());
+
+                    if ($respBody->getStatusCode() > 300) {
+                        return response()->custom($respBody->responseData, 'Send MT failed', true, $exTxId,
+                            $respBody->code, $respBody->getStatusCode());
+                    }
+
+                    return response()->custom($respBody->responseData, 'Send MT SUCCESS', false, $exTxId,
+                        $respBody->code, $respBody->getStatusCode());
+                } catch (\Exception $ex) {
+
+                    return response()->custom(new \stdClass(), 'Send MT Failed', true, $exTxId,
+                        $ex->getMessage(), '500');
+
+                }
+
+            }
+            if ($params['mnoDeliveryCode'] == 'NOT_ DELIVERED') {
+                return response()->custom(new \stdClass(), '', true, $exTxId,
+                    'SUCCESS', '200');
+
             }
         }
     }
@@ -263,10 +328,28 @@ class OptInNotificationController extends Controller
         $payload['timezone'] = 'Asia/Amman';
         $payload['context'] = 'STATELESS';
         $uuid = (string)Str::uuid();
+        $this->auth = $this->encryptedKey();
         $headers = ['apikey' => $this->apikey, 'authentication' => $this->auth, 'external-tx-id' => $uuid];
 
-        $re = $this->post($this->url . $mo->partner_role_id, $payload, $headers);
-        $respBody = json_decode($re->getBody());
+        $sendMtDto = new SendMTDTO([]);
+        try {
+            $re = $this->post($this->url . $mo->partner_role_id, $payload, $headers);
+            $respBody = json_decode($re->getBody());
+
+            $sendMtDto->setRequestId($respBody->requestId);
+            $sendMtDto->setCode($respBody->code);
+            $sendMtDto->setInError($respBody->inError);
+            $sendMtDto->setResponseData($respBody->responseData);
+            return $sendMtDto;
+        } catch (\Exception $ex) {
+
+            $sendMtDto->setRequestId($uuid);
+            $sendMtDto->setCode($ex->getMessage());
+            $sendMtDto->setInError(true);
+            $sendMtDto->setResponseData(new \stdClass());
+            return $sendMtDto;
+
+        }
     }
 
     /**
@@ -298,5 +381,19 @@ class OptInNotificationController extends Controller
             'msisdn' => 'required',
             'transactionUUID' => 'required',
         ];
+    }
+
+
+    public function encryptedKey()
+    {
+        $method = "AES-128-ECB";
+        $milliseconds = round(microtime(true) * 1000);
+        $data = "3168" . "#" . $milliseconds;
+        $key = "J1hboMqZ2LRB68e1";
+
+        $encrypted = openssl_encrypt($data, $method, $key, OPENSSL_RAW_DATA);
+        $result = Base64_encode($encrypted);
+
+        return $result;
     }
 }

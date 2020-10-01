@@ -29,7 +29,7 @@ class MtNotifications extends Migration
             $table->string('msisdn', 50)->nullable();
             $table->string('entry_channel', 50)->nullable();
             $table->string('large_account', 50)->nullable();
-            $table->string('transaction_uuid', 50)->unique()->nullable();
+            $table->string('transaction_uuid', 50)->nullable();
             $table->json('tags')->nullable();
 
             $table->timestamp('created_at')->default(\DB::raw('CURRENT_TIMESTAMP'));

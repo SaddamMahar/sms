@@ -20,12 +20,14 @@ class AppServiceProvider extends ServiceProvider
      * Bootstrap any application services.
      *
      * @return void
+     *
      */
     public function boot()
     {
-        \Response::macro('custom', function ($data, $message, $inError, $requestId, $code) {
-            $response = array('responseData' => $data, 'message' => $message, 'inError' => $inError, 'requestId' => $requestId, 'code' => $code);
-            return response()->json($response, $code);
+        \Response::macro('custom', function ($data, $message, $inError, $requestId, $code, $statusCode) {
+            $response = array('responseData' => $data, 'message' => $message, 'inError' => $inError,
+                'requestId' => $requestId, 'code' => $code);
+            return response()->json($response, $statusCode);
         });
     }
 }
