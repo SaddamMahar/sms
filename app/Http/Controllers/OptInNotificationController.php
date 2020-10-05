@@ -44,7 +44,7 @@ class OptInNotificationController extends Controller
             $mo->external_tx_id = $exTxId;
             if (!isset($exTxId)) {
                 $mo->external_tx_id = (string)Str::uuid();
-                $exTxId = '';
+                $exTxId = $mo->external_tx_id;
             }
 
             $this->modelFromParams($mo, $params);
@@ -57,16 +57,7 @@ class OptInNotificationController extends Controller
                 $this->modelFromModel($subscriber, $mo);
 
                 $subscriber->save();
-
-                $mtRes = $this->sendTimweePostReq($mo);
-
-                if ($mtRes->isInError()) {
-
-                    return response()->custom($mtRes->getResponseData(), 'Send MT failed', true, $exTxId,
-                        $mtRes->getCode(), '500');
-                }
-
-                return response()->custom($mtRes->getResponseData(), '', false, $exTxId, 'SUCCESS', '200');
+                return response()->custom(new \stdClass(), '', false, $exTxId, 'SUCCESS', '200');
 
             } catch (\Exception $e) {
                 return response()->custom(new \stdClass(), $e->getMessage(), true, $exTxId, 'Failed', '500');
@@ -124,8 +115,9 @@ class OptInNotificationController extends Controller
 
         $exTxId = $request->header('external-tx-id');
         if (!isset($exTxId)) {
-            $exTxId = '';
+            $exTxId = (string)Str::uuid();
         }
+
         $params['externalTxId'] = $exTxId;
 
         if (isset($params['mnoDeliveryCode'])) {
@@ -147,18 +139,17 @@ class OptInNotificationController extends Controller
                     $re = $this->post($urlSendMT, $params, $headers);
                     $respBody = json_decode($re->getBody());
 
-                    if ($respBody->getStatusCode() > 300) {
-                        return response()->custom($respBody->responseData, 'Send MT failed', true, $exTxId,
-                            $respBody->code, $respBody->getStatusCode());
+                    if ($respBody->inError) {
+                        return response()->custom(new \stdClass(), '', true, $exTxId,
+                            $respBody->code, '500');
                     }
 
-                    return response()->custom($respBody->responseData, 'Send MT SUCCESS', false, $exTxId,
-                        $respBody->code, $respBody->getStatusCode());
+                    return response()->custom(new \stdClass(), '', $respBody->inError, $exTxId,
+                        $respBody->code, '200');
                 } catch (\Exception $ex) {
 
-                    return response()->custom(new \stdClass(), 'Send MT Failed', true, $exTxId,
-                        $ex->getMessage(), '500');
-
+                    return response()->custom(new \stdClass(), $ex->getMessage(), true, $exTxId,
+                        'Failed', '500');
                 }
 
             }
@@ -180,18 +171,17 @@ class OptInNotificationController extends Controller
                     $re = $this->post($urlSendMT, $params, $headers);
                     $respBody = json_decode($re->getBody());
 
-                    if ($respBody->getStatusCode() > 300) {
-                        return response()->custom($respBody->responseData, 'Send MT failed', true, $exTxId,
-                            $respBody->code, $respBody->getStatusCode());
+                    if ($respBody->inError) {
+                        return response()->custom(new \stdClass(), '', true, $exTxId,
+                            $respBody->code, '500');
                     }
 
-                    return response()->custom($respBody->responseData, 'Send MT SUCCESS', false, $exTxId,
-                        $respBody->code, $respBody->getStatusCode());
+                    return response()->custom(new \stdClass(), '', $respBody->inError, $exTxId,
+                        $respBody->code, '200');
                 } catch (\Exception $ex) {
 
-                    return response()->custom(new \stdClass(), 'Send MT Failed', true, $exTxId,
-                        $ex->getMessage(), '500');
-
+                    return response()->custom(new \stdClass(), $ex->getMessage(), true, $exTxId,
+                        'Failed', '500');
                 }
 
             }
@@ -342,9 +332,9 @@ class OptInNotificationController extends Controller
             $sendMtDto->setResponseData($respBody->responseData);
             return $sendMtDto;
         } catch (\Exception $ex) {
-
+            $responseBody = json_decode($ex->getResponse()->getBody(true));
             $sendMtDto->setRequestId($uuid);
-            $sendMtDto->setCode($ex->getMessage());
+            $sendMtDto->setCode($responseBody->message);
             $sendMtDto->setInError(true);
             $sendMtDto->setResponseData(new \stdClass());
             return $sendMtDto;
@@ -367,7 +357,6 @@ class OptInNotificationController extends Controller
         $url = config('app.identity') . $url;
 
         array_push($headers, array('Content-Type' => 'application/json'));
-
         return $http->post($url, ['json' => $params, 'headers' => $headers]);
     }
 

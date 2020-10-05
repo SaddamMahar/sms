@@ -57,7 +57,7 @@ class OptOutNotificationController extends Controller
             } catch (\Exception $e) {
                 return response()->custom(new \stdClass(), $e->getMessage(), true, $exTxId, 'Failed', '500');
             }
-            return response()->custom(new \stdClass(), 'Saved', false, $exTxId, 'SUCCESS', '201');
+            return response()->custom(new \stdClass(), '', false, $exTxId, 'SUCCESS', '200');
         } else {
             $errMessage = '';
             foreach ($validator->errors()->all() as $err) {

@@ -18,9 +18,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/k',function (Request $request) {
-    return 'Hello world';
-});
 Route::get('/authorize/{partnerRole}','OptInNotificationController@getAuthorized');
 Route::post('/notification/mo/{partnerRole}','NotificationController@createMONotification');
 Route::post('/notification/mt/dn/{partnerRole}','MTNotificationController@createMTNotification');

@@ -10,7 +10,6 @@
 namespace App\Http\Controllers;
 
 
-use App\Http\MONotificationDTO;
 use App\MONotifications;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -46,7 +45,7 @@ class NotificationController extends Controller
             } catch (\Exception $e) {
                 return response()->custom(new \stdClass(), $e->getMessage(), true, $exTxId, 'Failed', '500');
             }
-            return response()->custom(new \stdClass(), 'Saved', false, $exTxId, 'SUCCESS', '201');
+            return response()->custom(new \stdClass(), '', false, $exTxId, 'SUCCESS', '200');
         } else {
 
             $errMessage = '';
