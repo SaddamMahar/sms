@@ -11,6 +11,7 @@ namespace App\Http\Controllers;
 
 
 use App\RenewalNotifications;
+use App\MAProductDetails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Validator;
@@ -41,6 +42,16 @@ class RenewalNotificationController extends Controller
             $this->modelFromParams($mo, $params);
 
             try {
+                $productDetails = MAProductDetails::where('product_id', '=', $params['productId'])->first();
+                if (!isset($productDetails)) {
+                    return response()->custom(new \stdClass(), 'INVALID_PRODUCT_ID', true, $exTxId, 'Failed', '500');
+                }
+
+                $res = $this->validateProductDetails($productDetails, $mo);
+                if ($res !== null) {
+                    return response()->custom(new \stdClass(), $res, true, $exTxId, 'Failed', '500');
+                }
+
                 $mo->save();
             } catch (\Exception $e) {
                 return response()->custom(new \stdClass(), $e->getMessage(), true, $exTxId, 'Failed', '500');
@@ -145,6 +156,26 @@ class RenewalNotificationController extends Controller
         } else {
             $mo->mno_delivery_code = '';
         }
+    }
+
+    public function validateProductDetails($productDetails, $params)
+    {
+        if (isset($params->price_point_id) && $params->price_point_id != $productDetails['mt_price_point_id']) {
+            return 'INVALID_PRICEPOINT_ID';
+        }
+
+        if (isset($params->mcc) && $params->mcc !== $productDetails['mcc']) {
+            return 'INVALID_MCC';
+        }
+        if (isset($params->mnc) && $params->mnc !== $productDetails['mnc']) {
+            return 'INVALID_MNC';
+        }
+
+        if (isset($params->large_account) && $params->large_account !== $productDetails['large_account']) {
+            return 'INVALID_LARGE_ACCOUNT';
+        }
+
+        return null;
     }
 
 }

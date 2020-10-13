@@ -50,6 +50,9 @@ class OptOutNotificationController extends Controller
 
                 $subscriber = Subscriber::where('msisdn', $mo->msisdn)->first();
 
+                if(!isset($subscriber)) {
+                    return response()->custom(new \stdClass(), 'INVALID_MSISDN', true, $exTxId, 'Failed', '500');
+                }
                 $subscriber->unsubscribe_date = $mytime->toDateTimeString();
                 $subscriber->status = 0;
 

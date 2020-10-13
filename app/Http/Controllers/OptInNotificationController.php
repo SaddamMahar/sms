@@ -11,6 +11,7 @@ namespace App\Http\Controllers;
 
 
 use App\Http\SendMTDTO;
+use App\MAProductDetails;
 use App\OptInNotifications;
 use App\Subscriber;
 use Carbon\Carbon;
@@ -50,6 +51,15 @@ class OptInNotificationController extends Controller
             $this->modelFromParams($mo, $params);
 
             try {
+
+                $productDetails = MAProductDetails::where('product_id', '=', $mo->product_id)->first();
+                if (!isset($productDetails)) {
+                    return response()->custom(new \stdClass(), 'INVALID_PRODUCT_ID', true, $exTxId, 'Failed', '500');
+                }
+                $res = $this->validateProductDetails($productDetails, $mo);
+                if ($res !== null) {
+                    return response()->custom(new \stdClass(), $res, true, $exTxId, 'Failed', '500');
+                }
                 $mo->save();
 
                 $subscriber = new Subscriber();
@@ -96,9 +106,9 @@ class OptInNotificationController extends Controller
             $payload['pricepointId'] = $subscriberArr['price_point_id'];
             $payload['mcc'] = $subscriberArr['mcc'];
             $payload['text'] = $subscriberArr['text'];
-            $payload['mnc'] = '03';
-            $payload['msisdn'] = '962795156077';
-            $payload['largeAccount'] = '95910';
+            $payload['mnc'] = $subscriberArr['mnc'];
+            $payload['msisdn'] = $subscriberArr['msisdn'];
+            $payload['largeAccount'] = $subscriberArr['largeAccount'];
             $payload['priority'] = 'NORMAL';
             $payload['timezone'] = 'Asia/Amman';
             $payload['context'] = 'STATELESS';
@@ -111,6 +121,7 @@ class OptInNotificationController extends Controller
 
     public function notifyFirstCharge(Request $request, $partnerRole)
     {
+        $timweeParams = [];
         $params = $request->all();
 
         $exTxId = $request->header('external-tx-id');
@@ -118,7 +129,31 @@ class OptInNotificationController extends Controller
             $exTxId = (string)Str::uuid();
         }
 
-        $params['externalTxId'] = $exTxId;
+        try {
+            $productDetails = MAProductDetails::where('product_id', '=', $params['productId'])->first();
+            if (!isset($productDetails)) {
+                return response()->custom(new \stdClass(), 'INVALID_PRODUCT_ID', true, $exTxId, 'Failed', '500');
+            }
+
+            $mo = new OptInNotifications();
+            $this->modelFromParams($mo, $params);
+            $res = $this->validateProductDetails($productDetails, $mo);
+            if ($res !== null) {
+                return response()->custom(new \stdClass(), $res, true, $exTxId, 'Failed', '500');
+            }
+        } catch (\Exception $e) {
+            return response()->custom(new \stdClass(), $e->getMessage(), true, $exTxId, 'Failed', '500');
+        }
+        $timweeParams['productId'] = $params['productId'];
+        $timweeParams['pricepointId'] = $params['pricepointId'];
+        $timweeParams['mcc'] = $params['mcc'];
+        $timweeParams['mnc'] = $params['mnc'];
+        $timweeParams['msisdn'] = $params['msisdn'];
+        $timweeParams['largeAccount'] = $params['largeAccount'];
+        $timweeParams['priority'] = 'NORMAL';
+        $timweeParams['timezone'] = 'Asia/Amman';
+        $timweeParams['context'] = 'STATELESS';
+
 
         if (isset($params['mnoDeliveryCode'])) {
             if ($params['mnoDeliveryCode'] == 'DELIVERED') {
@@ -132,26 +167,16 @@ class OptInNotificationController extends Controller
                 $urlSendMT = $this->url . $partnerRole;
                 $uuid = (string)Str::uuid();
                 $headers['external-tx-id'] = $uuid;
-
-                $params['text'] = 'مباراة الميلان ضد أتالانتا انتهت لصالح أصحاب الأرض الميلان بنتيجة 1 - 0 ';
+                $timweeParams['text'] = 'مباراة الميلان ضد أتالانتا انتهت لصالح أصحاب الأرض الميلان بنتيجة 1 - 0 ';
 
                 try {
-                    $re = $this->post($urlSendMT, $params, $headers);
-                    $respBody = json_decode($re->getBody());
-
-                    if ($respBody->inError) {
-                        return response()->custom(new \stdClass(), '', true, $exTxId,
-                            $respBody->code, '500');
-                    }
-
-                    return response()->custom(new \stdClass(), '', $respBody->inError, $exTxId,
-                        $respBody->code, '200');
+                    $this->post($urlSendMT, $timweeParams, $headers);
                 } catch (\Exception $ex) {
-
-                    return response()->custom(new \stdClass(), $ex->getMessage(), true, $exTxId,
-                        'Failed', '500');
+                    return response()->custom(new \stdClass(), '', false, $exTxId,
+                        'SUCCESS', '200');
                 }
-
+                return response()->custom(new \stdClass(), '', false, $exTxId,
+                    'SUCCESS', '200');
             }
             if ($params['mnoDeliveryCode'] == 'NO_BALANCE') {
 
@@ -165,30 +190,20 @@ class OptInNotificationController extends Controller
                 $uuid = (string)Str::uuid();
                 $headers['external-tx-id'] = $uuid;
 
-                $params['text'] = ' رصيدك غير كاف، الرجاء شحن الخط للاستفادة من الخدمة';
+                $timweeParams['text'] = 'رصيدك غير كاف، الرجاء شحن الخط للاستفادة من الخدمة';
 
                 try {
-                    $re = $this->post($urlSendMT, $params, $headers);
-                    $respBody = json_decode($re->getBody());
-
-                    if ($respBody->inError) {
-                        return response()->custom(new \stdClass(), '', true, $exTxId,
-                            $respBody->code, '500');
-                    }
-
-                    return response()->custom(new \stdClass(), '', $respBody->inError, $exTxId,
-                        $respBody->code, '200');
+                    $this->post($urlSendMT, $timweeParams, $headers);
                 } catch (\Exception $ex) {
-
-                    return response()->custom(new \stdClass(), $ex->getMessage(), true, $exTxId,
-                        'Failed', '500');
+                    return response()->custom(new \stdClass(), '', false, $exTxId,
+                        'SUCCESS', '200');
                 }
-
+                return response()->custom(new \stdClass(), '', false, $exTxId,
+                    'SUCCESS', '200');
             }
             if ($params['mnoDeliveryCode'] == 'NOT_ DELIVERED') {
-                return response()->custom(new \stdClass(), '', true, $exTxId,
+                return response()->custom(new \stdClass(), '', false, $exTxId,
                     'SUCCESS', '200');
-
             }
         }
     }
@@ -384,5 +399,45 @@ class OptInNotificationController extends Controller
         $result = Base64_encode($encrypted);
 
         return $result;
+    }
+
+    public function validateProductDetails($productDetails, $params)
+    {
+        if (isset($params->price_point_id) && $params->price_point_id != $productDetails['mt_price_point_id']) {
+            return 'INVALID_PRICEPOINT_ID';
+        }
+
+        if (isset($params->mcc) && $params->mcc !== $productDetails['mcc']) {
+            return 'INVALID_MCC';
+        }
+        if (isset($params->mnc) && $params->mnc !== $productDetails['mnc']) {
+            return 'INVALID_MNC';
+        }
+
+//        if (isset($params->entry_channel) && $params->entry_channel == $productDetails['entry_channel']) {
+//            return 'INVALID_ENTRY_CHANNEL';
+//        }
+//        if (isset($params->msisdn) && $params->msisdn == $productDetails['msisdn']) {
+//            return 'INVALID_MSISDN';
+//        }
+
+        if (isset($params->large_account) && $params->large_account !== $productDetails['large_account']) {
+            return 'INVALID_LARGE_ACCOUNT';
+        }
+
+//        if (isset($params->transaction_uuid) && $params->transaction_uuid == $productDetails['transaction_uuid']) {
+//            return 'INVALID_TRANSACTION_UUID';
+//        }
+//        if (isset($params->user_identifier) && $params->user_identifier == $productDetails['user_identifier']) {
+//            return 'INVALID_USER_IDENTIFIER';
+//        }
+//        if (isset($params->user_identifier_type) && $params->user_identifier_type == $productDetails['user_identifier_type']) {
+//            return 'INVALID_USER_IDENTIFIER_TYPE';
+//        }
+
+//        if (isset($params->mno_delivery_code) && $params->mno_delivery_code == $productDetails['mno_delivery_code']) {
+//            return 'INVALID_MNO_DELIVERY_CODE';
+//        }
+        return null;
     }
 }
